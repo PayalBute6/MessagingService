@@ -39,16 +39,6 @@ messaging/
 
 🔧 Setup Instructions
 
-1. Clone the project
-git clone https://github.com/your-repo/messaging.git
-cd messaging
-
-2. Build the project
-mvn clean install
-
-3. Run the server
-mvn spring-boot:run
-
 Spring Boot will start on: http://localhost:8080
 
 🧪 How to Use
