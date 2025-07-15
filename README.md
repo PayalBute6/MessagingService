@@ -1,18 +1,21 @@
-#Real-Time Messaging Service
+# Real-Time Messaging Service
+
 A lightweight real-time chat system built with Spring Boot, WebSocket (STOMP/SockJS), JWT authentication, and in-memory message queuing for reliable offline message delivery.
 
-🚀 Features
+ 🚀 Features
 
-🔐 JWT-based authentication with OTP verification
-🧵 WebSocket communication using STOMP over SockJS
-📥 Instant message delivery to online users
-🕒 Message queuing for offline users with automatic delivery on reconnect
-📜 In-memory storage for users and messages (no database required)
-📦 REST APIs for user registration, OTP verification, and login
-🌐 Frontend chat client using plain HTML + JavaScript
-🔄 Online/offline detection via WebSocket connection tracking
+- 🔐 JWT-based authentication with OTP verification
+- 🧵 WebSocket communication using STOMP over SockJS
+- 📥 Instant message delivery to online users
+- 🕒 Message queuing for offline users with automatic delivery on reconnect
+- 📜 In-memory storage for users and messages (no database required)
+- 📦 REST APIs for user registration, OTP verification, and login
+- 🌐 Frontend chat client using plain HTML + JavaScript
+- 🔄 Online/offline detection via WebSocket connection tracking
 
-📁 Project Structure
+ 📁 Project Structure
+
+
 messaging/
 ├── src/main/java/com/example/messaging/
 │   ├── auth/                     # JWT utilities and filters
@@ -39,36 +42,43 @@ messaging/
 │   ├── login.html                # Login interface
 │   └── favicon.ico               # Application icon
 └── pom.xml                       # Maven dependencies
-⚙️ Prerequisites
-
-Java 17+
-Maven 3.6+
-IDE (IntelliJ IDEA, VS Code, or Eclipse)
-Modern browser (Chrome, Firefox, Safari)
-
-🔧 Setup Instructions
-
-Clone the repository
-bashgit clone <repository-url>
-cd messaging
-
-Build the project
-bashmvn clean install
-
-Run the application
-bashmvn spring-boot:run
-
-Access the application
-
-Server: http://localhost:8080
-Login page: http://localhost:8080/login.html
-Chat page: http://localhost:8080/chat.html
 
 
+ ⚙️ Prerequisites
 
-🧪 API Usage
-1. User Registration
-httpPOST http://localhost:8080/register
+- Java 17+
+- Maven 3.6+
+- IDE (IntelliJ IDEA, VS Code, or Eclipse)
+- Modern browser (Chrome, Firefox, Safari)
+
+ 🔧 Setup Instructions
+
+1. Clone the repository
+   
+   git clone <repository-url>
+   cd messaging
+   
+
+2. Build the project
+   
+   mvn clean install
+   
+
+3. Run the application
+   
+   mvn spring-boot:run
+   
+
+4. Access the application
+   - Server: `http://localhost:8080`
+   - Login page: `http://localhost:8080/login.html`
+   - Chat page: `http://localhost:8080/chat.html`
+
+ 🧪 API Usage
+
+# 1. User Registration
+http
+POST http://localhost:8080/register
 Content-Type: application/json
 
 {
@@ -76,173 +86,188 @@ Content-Type: application/json
   "password": "password123"
 }
 
-2. OTP Verification
-httpPOST http://localhost:8080/verify?username=user1&otp=123456
 
-3. User Login
-httpPOST http://localhost:8080/login
+# 2. OTP Verification
+http
+POST http://localhost:8080/verify?username=user1&otp=123456
+
+
+# 3. User Login
+http
+POST http://localhost:8080/login
 Content-Type: application/json
 
 {
   "username": "user1",
   "password": "password123"
 }
+
+
 Response:
-json{
+json
+{
   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 }
-🔄 WebSocket Message Flow
-Connection Process:
 
-Client connects to /ws endpoint using SockJS
-Authenticates with JWT token in Authorization header
-Subscribes to /user/queue/messages for receiving messages
-Sends connection notification to /app/connect
 
-Message Sending:
-javascript// Send message to another user
+ 🔄 WebSocket Message Flow
+
+# Connection Process:
+1. Client connects to `/ws` endpoint using SockJS
+2. Authenticates with JWT token in `Authorization` header
+3. Subscribes to `/user/queue/messages` for receiving messages
+4. Sends connection notification to `/app/connect`
+
+# Message Sending:
+javascript
+// Send message to another user
 stompClient.send("/app/send", {}, JSON.stringify({
     receiver: "user2",
     text: "Hello there!"
 }));
-Message Format:
-json{
+
+
+# Message Format:
+json
+{
   "sender": "user1",
   "receiver": "user2",
   "text": "Hello there!",
   "timestamp": "2025-07-15T10:30:00Z"
 }
-📊 Message Delivery Logic
-Online User:
 
-Message delivered immediately via WebSocket
-Real-time notification to receiver
 
-Offline User:
+ 📊 Message Delivery Logic
 
-Message queued in memory grouped by receiver
-Automatic delivery when user reconnects
-Messages delivered in correct order
+# Online User:
+- Message delivered immediately via WebSocket
+- Real-time notification to receiver
 
-Reconnection:
+# Offline User:
+- Message queued in memory grouped by receiver
+- Automatic delivery when user reconnects
+- Messages delivered in correct order
 
-All queued messages delivered instantly
-User marked as online
-Live message delivery resumed
+# Reconnection:
+- All queued messages delivered instantly
+- User marked as online
+- Live message delivery resumed
 
-🛠️ Key Components
-Authentication
+ 🛠️ Key Components
 
-JWT tokens for stateless authentication
-OTP verification for enhanced security
-WebSocket authentication via STOMP headers
+# Authentication
+- JWT tokens for stateless authentication
+- OTP verification for enhanced security
+- WebSocket authentication via STOMP headers
 
-Message Storage
+# Message Storage
+- In-memory queuing using `ConcurrentHashMap<String, Queue<ChatMessage>>`
+- Thread-safe operations for concurrent users
+- Automatic cleanup of empty queues
 
-In-memory queuing using ConcurrentHashMap<String, Queue<ChatMessage>>
-Thread-safe operations for concurrent users
-Automatic cleanup of empty queues
+# Connection Management
+- Online user tracking with `ConcurrentHashMap.newKeySet()`
+- WebSocket session management via Spring STOMP
+- Graceful disconnection handling
 
-Connection Management
+ 🧠 Testing Scenarios
 
-Online user tracking with ConcurrentHashMap.newKeySet()
-WebSocket session management via Spring STOMP
-Graceful disconnection handling
+# 1. Real-time Messaging
+- Open chat in two browsers with different users
+- Send messages between them
+- Verify instant delivery
 
-🧠 Testing Scenarios
-1. Real-time Messaging
+# 2. Offline Message Queuing
+- User A sends message to offline User B
+- User B connects later
+- Verify message is delivered on connection
 
-Open chat in two browsers with different users
-Send messages between them
-Verify instant delivery
+# 3. Multiple Message Delivery
+- Multiple users send messages to offline user
+- Verify all messages delivered in correct order
+- Check message timestamps
 
-2. Offline Message Queuing
+# 4. Connection Recovery
+- Disconnect and reconnect user
+- Verify queued messages are delivered
+- Confirm real-time messaging resumes
 
-User A sends message to offline User B
-User B connects later
-Verify message is delivered on connection
+ 🔒 Security Features
 
-3. Multiple Message Delivery
+- JWT token validation on every WebSocket message
+- CORS configuration for cross-origin requests
+- CSRF protection disabled for WebSocket endpoints
+- Stateless session management
+- Authorization header authentication
 
-Multiple users send messages to offline user
-Verify all messages delivered in correct order
-Check message timestamps
+ 🌐 Frontend Features
 
-4. Connection Recovery
+- Real-time chat interface with message history
+- Online/offline status indicators
+- Message timestamps and sender identification
+- Auto-scroll for new messages
+- Enter key support for sending messages
+- JWT token storage in localStorage
 
-Disconnect and reconnect user
-Verify queued messages are delivered
-Confirm real-time messaging resumes
+ 🛡️ Technologies Used
 
-🔒 Security Features
+- Spring Boot 3.x - Application framework
+- Spring Security - Authentication and authorization
+- Spring WebSocket - Real-time communication
+- STOMP - WebSocket protocol
+- SockJS - WebSocket fallback support
+- JWT - JSON Web Tokens for authentication
+- Maven - Dependency management
+- HTML/CSS/JavaScript - Frontend implementation
 
-JWT token validation on every WebSocket message
-CORS configuration for cross-origin requests
-CSRF protection disabled for WebSocket endpoints
-Stateless session management
-Authorization header authentication
+ 📝 Configuration
 
-🌐 Frontend Features
+# WebSocket Configuration
+- Endpoint: `/ws` with SockJS fallback
+- Message broker: `/queue` and `/topic` prefixes
+- Application prefix: `/app`
+- User prefix: `/user`
 
-Real-time chat interface with message history
-Online/offline status indicators
-Message timestamps and sender identification
-Auto-scroll for new messages
-Enter key support for sending messages
-JWT token storage in localStorage
+# Security Configuration
+- Public endpoints: Login, registration, static files, WebSocket
+- Protected endpoints: All other REST APIs
+- JWT filter: Validates tokens on protected endpoints
+- CORS: Allows all origins (configure for production)
 
-🛡️ Technologies Used
+ ✅ Future Enhancements
 
-Spring Boot 3.x - Application framework
-Spring Security - Authentication and authorization
-Spring WebSocket - Real-time communication
-STOMP - WebSocket protocol
-SockJS - WebSocket fallback support
-JWT - JSON Web Tokens for authentication
-Maven - Dependency management
-HTML/CSS/JavaScript - Frontend implementation
+- [ ] Database persistence (H2, PostgreSQL, MongoDB)
+- [ ] Message history with pagination
+- [ ] User registration UI with form validation
+- [ ] Group chat functionality
+- [ ] Message read receipts
+- [ ] File sharing capabilities
+- [ ] Message encryption
+- [ ] User presence indicators
+- [ ] Message search functionality
+- [ ] Push notifications
 
-📝 Configuration
-WebSocket Configuration
+ 🚀 Deployment
 
-Endpoint: /ws with SockJS fallback
-Message broker: /queue and /topic prefixes
-Application prefix: /app
-User prefix: /user
+# Development
 
-Security Configuration
+mvn spring-boot:run
 
-Public endpoints: Login, registration, static files, WebSocket
-Protected endpoints: All other REST APIs
-JWT filter: Validates tokens on protected endpoints
-CORS: Allows all origins (configure for production)
 
-✅ Future Enhancements
+# Production
 
- Database persistence (H2, PostgreSQL, MongoDB)
- Message history with pagination
- User registration UI with form validation
- Group chat functionality
- Message read receipts
- File sharing capabilities
- Message encryption
- User presence indicators
- Message search functionality
- Push notifications
-
-🚀 Deployment
-Development
-bashmvn spring-boot:run
-Production
-bashmvn clean package
+mvn clean package
 java -jar target/messaging-1.0.0.jar
-📞 Support
+
+
+ 📞 Support
+
 For issues or questions, please check the application logs and ensure:
+- JWT tokens are properly formatted
+- WebSocket connection is established
+- User authentication is successful
+- Message format follows the expected schema
 
-JWT tokens are properly formatted
-WebSocket connection is established
-User authentication is successful
-Message format follows the expected schema
-
+---
 
 Built with using Spring Boot and WebSocket technology
